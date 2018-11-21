@@ -1,0 +1,33 @@
+{
+  "name": "reveal.js",
+  "version": "3.6.0",
+  "description": "The HTML Presentation Framework",
+  "homepage": "http://revealjs.com",
+  "subdomain": "revealjs",
+  "main": "js/reveal.js",
+  "scripts": {
+    "start": "browser-sync start -s -f . --port 8081",
+    "build": "grunt"
+  },
+  "author": {
+    "name": "Hakim El Hattab",
+    "email": "hakim.elhattab@gmail.com",
+    "web": "http://hakim.se"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/hakimel/reveal.js.git"
+  },
+  "engines": {
+    "node": ">=4.0.0"
+  },
+  "devDependencies": {},
+  "license": "MIT",
+  "dependencies": {
+    "emojione": "^4.0.0",
+    "gitgraph.js": "^1.13.0",
+    "grunt-browser-sync": "^2.2.0",
+    "mermaid": "^8.0.0-rc.8",
+    "reveal.js-d3js": "^1.0.0"
+  }
+}

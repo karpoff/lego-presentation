@@ -1,0 +1,658 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <title>История одного конструктора</title>
+
+    <link rel="stylesheet" href="lib/css/reveal.css">
+    <link rel="stylesheet" href="lib/css/theme/tinkoff-light.css">
+    <link rel="stylesheet" href="lib/css/custom.css">
+
+    <!-- Theme used for syntax highlighting of code -->
+    <link rel="stylesheet" href="lib/plugins/prism/tinkoff.css">
+
+    <link rel="icon" href="//www.cdn-tinkoff.ru/platform/images/favicon.ico?1.110.0" sizes=""
+          type="image/x-icon">
+
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css"
+          integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU"
+          crossorigin="anonymous">
+
+    <!-- Printing and PDF exports -->
+    <script>
+        const printMode = window.location.search.match(/print-pdf/gi);
+        const link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.type = 'text/css';
+        link.href = printMode ? 'lib/css/print/pdf.css' : 'lib/css/print/paper.css';
+        document.getElementsByTagName('head')[0].appendChild(link);
+    </script>
+</head>
+
+<body>
+<div class="reveal">
+    <div class="slides">
+        <section data-background-color="#ffdd2d" data-state="intro" data-disable-header="true">
+            <div class="abc">
+                <div class="cover-title">
+                    <h2>История одного конструктора</h2>
+                    <h5>Антон Карпов, Tinkoff.ru</h5>
+                </div>
+            </div>
+        </section>
+
+        <section data-title="Whoami">
+            <div class="row">
+                <ul>
+                    <li>Антон Карпов<br>Ведущий разработчик</li>
+                    <li>Telegram: <a href="https://t.me/gagarins">gagarins</a></li>
+                    <li>Github: <a href="https://github.com/karpoff">karpoff</a></li>
+                </ul>
+                <div>
+                    <img src="assets/me.png" alt="" width="200">
+                </div>
+            </div>
+        </section>
+
+        <section data-title="О чем буду говорить">
+            <ul>
+                <li class="fragment">Конструтор сайтов от Тинькофф</li>
+                <li class="fragment">Создание angular 6+ библиотек</li>
+                <li class="fragment">Процесс разработки библиотек - построение и проверка</li>
+            </ul>
+        </section>
+
+        <section data-background-image="assets/gagarin.jpg"
+                 class="slide-bottom"
+                 style="background-position-y: top;">
+            <h3>Поехали!</h3>
+        </section>
+
+        <section data-background-image="assets/website_example.gif"
+                 class="slide-background-fit">
+            <div></div>
+        </section>
+
+        <section data-title="С чего начинаем">
+            <ul>
+                <li class="fragment">Приложение на angular 5</li>
+                <li class="fragment">Компоненты и логика редактора</li>
+                <li class="fragment">Набор блоков конструктора</li>
+                <li class="fragment">Компоненты и логика приложения</li>
+            </ul>
+        </section>
+
+        <section data-title="Что не так">
+            <ul>
+                <li class="fragment">Сложность отслеживания блоков</li>
+                <li class="fragment">Появление аналогичного конструктора</li>
+                <li class="fragment">Усложнение логики и увеличение количества тестов</li>
+            </ul>
+        </section>
+
+        <section data-title="Что хотим сделать">
+            <ol>
+                <li class="fragment">Выделяем общий код в библиотеку</li>
+                <li class="fragment">Делаем библиотеку с блоками под каждый конкретный продукт</li>
+                <li class="fragment">Делаем отдельное приложение для проверки блоков</li>
+                <li class="fragment">Покрываем все тестами</li>
+            </ol>
+        </section>
+
+        <section class="slide-data" data-title="ng-packagr">
+            <figure class="center"><img src="assets/angular_logo.png" alt=""></figure>
+        </section>
+
+        <section data-title="Создаем проект с библиотекой">
+            <ol>
+                <li class="fragment">ng new lego-example</li>
+                <li class="fragment">cd lego-example</li>
+                <li class="fragment">ng generate library lego-common</li>
+                <li class="fragment">ng generate library lego-site</li>
+            </ol>
+        </section>
+
+        <section data-title="angular.json" class="slide-code">
+        <pre class="language-javascript"><code>
+            {
+  "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
+  "version": 1,
+  "newProjectRoot": "projects",
+  "projects": {
+    "lego-example": {...},
+    "lego-example-e2e": {...},
+    <highlight>"lego-common": {...},</highlight>
+    <highlight>"lego-site": {...}</highlight>
+  },
+  "defaultProject": "lego-example"
+}
+        </code></pre>
+        </section>
+
+        <section data-title="angular.json" class="slide-code code">
+        <pre class="language-javascript"><code>
+    "lego-common": {
+      "root": "projects/lego-common",
+      "sourceRoot": "projects/lego-common/src",
+      <highlight class="fragment">"projectType": "library",</highlight>
+      "prefix": "lib",
+      "architect": {...}
+    }
+        </code></pre>
+        </section>
+
+        <section data-title="структура" class="slide-code code">
+        <pre class="language-javascript"><code>
+    <i class="far fa-folder"></i> projects:
+        <i class="far fa-folder"></i> lego-common
+        <i class="far fa-folder"></i> lego-site:
+            <i class="far fa-folder"></i> src:
+                <highlight class="fragment"><i class="far fa-folder"></i>lib</highlight>
+                <highlight class="fragment"><i class="fab fa-blank"></i> public_api.ts</highlight>
+            <highlight class="fragment"><i class="fab fa-blank"></i> ng-package.json</highlight>
+            <highlight class="fragment"><i class="fab fa-blank"></i> ng-package.prod.json</highlight>
+            <highlight class="fragment"><i class="fab fa-blank"></i> package.json</highlight>
+            <highlight class="fragment"><i class="fab fa-blank"></i> tsconfig.lib.json</highlight>
+    <i class="far fa-folder"></i> src
+    <i class="fas fa-blank"></i> angular.json
+        </code></pre>
+        </section>
+
+        <section data-title="projects/lego-common/package.json" class="slide-code">
+            <pre class="language-javascript"><code>
+{
+  "name": "@lego/common",
+  "version": "0.0.1",
+  "peerDependencies": {
+    "@angular/common": "^6.0.0-rc.0 || ^6.0.0",
+    "@angular/core": "^6.0.0-rc.0 || ^6.0.0",
+    "rxjs": "^6.2.2"
+  }
+}
+        </code></pre>
+        </section>
+
+        <section data-title="projects/lego-landings/package.json" class="slide-code">
+            <pre class="language-javascript"><code>
+            {
+  "name": "@lego/site",
+  "version": "0.0.1",
+  "peerDependencies": {
+    "@angular/common": "^6.0.0-rc.0 || ^6.0.0",
+    "@angular/core": "^6.0.0-rc.0 || ^6.0.0",
+    "rxjs": "^6.2.2"
+  },
+  "dependencies": {
+    "lego-common": "^0.0.1"
+  }
+}
+        </code></pre>
+        </section>
+
+        <section data-title="projects/lego-landings/ng-package.json" class="slide-code">
+            <pre class="language-javascript"><code>
+{
+  "$schema": "../../node_modules/ng-packagr/ng-package.schema.json",
+  <highlight class="fragment">"dest": "../../dist/lego-site",</highlight>
+  "deleteDestPath": false,
+  <highlight class="fragment">"whitelistedNonPeerDependencies": ["lego-common"],</highlight>
+  "lib": {
+    <highlight class="fragment">"entryFile": "public_api.ts"</highlight>
+  }
+}
+        </code></pre>
+        </section>
+
+        <section data-title="projects/lego-site/src/lego-site.module.ts" class="slide-code">
+            <pre class="language-javascript"><code>
+import {LegoCommonModule} <highlight>from 'lego-common'</highlight>;
+
+import {LegoSiteComponent} from './lego-site.component';
+
+@NgModule({
+    import: [LegoCommonModule],
+    ...
+})
+export class LegoSiteModule {
+}
+        </code></pre>
+        </section>
+
+        <section data-title="как публикуем?" class="slide-data">
+            <h3>Все в одном пакете?</h3>
+        </section>
+
+        <section data-title="entry points" class="slide-code code">
+        <pre class="language-javascript"><code>
+    <i class="far fa-folder"></i> lego-site:
+        <i class="far fa-folder"></i> bricks:
+            <highlight><i class="fab fa-blank"></i> package.json</highlight>
+            <i class="fab fa-blank"></i> public_api.ts
+        <i class="far fa-folder"></i> src:
+            <i class="fab fa-blank"></i> public_api.ts
+{
+  "ngPackage": {
+    "lib": {
+      "entryFile": "public_api.ts"
+    }
+  }
+}
+        </code></pre>
+
+            <ul class="slide-entrypoints-list">
+                <li>lego-site</li>
+                <li>lego-site/bricks</li>
+                <li>lego-site/...</li>
+            </ul>
+        </section>
+
+
+        <section data-title="структура" class="slide-code code">
+        <pre class="language-javascript"><code>
+    <span class="fragment fragment-highlight"><i class="far fa-folder"></i> lego-common: <code-note>пакет с движком</code-note></span>
+        <span class="fragment fragment-highlight"><i class="far fa-folder"></i> src:<code-note>root пакета</code-note></span>
+            <span class="fragment fragment-highlight"><i class="far fa-folder"></i> lego<code-note>модуль редактора</code-note></span>
+            <span class="fragment fragment-highlight"><i class="fab fa-blank"></i> public_api.ts<code-note>список экпортируемых компонент</code-note></span>
+
+    <span class="fragment fragment-highlight"><i class="far fa-folder"></i> lego-site: <code-note>пакет с блоками</code-note></span>
+        <span class="fragment fragment-highlight"><i class="far fa-folder"></i> bricks:<code-note>подпакет с непосредственно блоками</code-note></span>
+            <span class="fragment fragment-highlight"><i class="far fa-folder"></i> ...:<code-note>модули блоков</code-note></span>
+            <span class="fragment fragment-highlight"><i class="fab fa-blank"></i> public_api.ts<code-note>список экпортируемых компонент</code-note></span>
+        <span class="fragment fragment-highlight"><i class="far fa-folder"></i> src:<code-note>root пакета</code-note></span>
+            <span class="fragment fragment-highlight"><i class="far fa-folder"></i> lego<code-note>модуль редактора с блоками</code-note></span>
+            <span class="fragment fragment-highlight"><i class="fab fa-blank"></i> public_api.ts<code-note>список экпортируемых компонент</code-note></span>
+
+        </code></pre>
+        </section>
+
+        <section data-title="структура блока" class="slide-code code">
+        <pre class="language-javascript"><code>
+    <i class="far fa-folder"></i> image:
+        <span class="fragment fragment-highlight"><i class="fab fa-blank"></i>image.module.ts<code-note>модуль</code-note></span>
+        <span class="fragment fragment-highlight"><i class="fab fa-blank"></i>image.component.ts<code-note>компонента</code-note></span>
+        <span class="fragment fragment-highlight"><i class="fab fa-blank"></i>info.json<code-note>данные блока</code-note></span>
+        </code></pre>
+            
+            <img class="fragment" style="max-height: 30%" src="assets/lego_add_example.png">
+        </section>
+
+        <section data-background-image="assets/build.jpg"
+                 class="background-contain"
+                 style="background-position-y: top;">
+            <h3>сборка перед сборкой?</h3>
+        </section>
+
+        <section data-title="angular.json" class="slide-code">
+            <pre class="language-javascript"><code>
+    <highlight>"lego-site"</highlight>: {
+      "root": "projects/lego-site",
+      "sourceRoot": "projects/lego-site",
+      "projectType": "library",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          <highlight class="fragment">"builder": "@angular-devkit/build-ng-packagr:build",</highlight>
+          "options": {
+            "tsConfig": "projects/lego-landings/tsconfig.json",
+            "project": "projects/lego-landings/ng-package.json",
+            "source": "projects/lego-landings"
+          },
+        }
+      }
+    }
+        </code></pre>
+        </section>
+
+        <section data-title="angular.json" class="slide-code">
+            <pre class="language-javascript"><code>
+    <highlight>"lego-site"</highlight>: {
+      "root": "projects/lego-site",
+      "sourceRoot": "projects/lego-site",
+      "projectType": "library",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          <highlight>"builder": "./builders:lego",</highlight>
+          "options": {
+            "tsConfig": "projects/lego-landings/tsconfig.json",
+            "project": "projects/lego-landings/ng-package.json",
+            "source": "projects/lego-landings"
+          },
+        }
+      }
+    }
+        </code></pre>
+        </section>
+
+        <section data-title="builders/package.json" class="slide-code">
+            <pre class="language-javascript"><code>
+            {
+  "builders": "builders.json"
+}
+        </code></pre>
+        </section>
+
+        <section data-title="builders/builders.json" class="slide-code">
+            <pre class="language-javascript"><code>
+{
+  "$schema": "../node_modules/@angular-devkit/architect/src/builders-schema.json",
+  "builders": {
+    <highlight class="fragment">"lego"</highlight>: {
+      <highlight class="fragment">"class": "./lego",</highlight>
+      <highlight class="fragment">"schema": "../node_modules/@angular-devkit/build-ng-packagr/src/build/schema.json",</highlight>
+      "description": "Build a library with ng-packagr."
+    }
+  }
+}
+        </code></pre>
+        </section>
+
+
+        <section data-title="builders/lego/index.js" class="slide-code" style="font-size: 0.7em;">
+            <pre class="language-javascript"><code>
+<highlight class="fragment">const CoreBuilder = require("@angular-devkit/build-ng-packagr/src/build");</highlight>
+
+<highlight class="fragment">class LegoBuilder {</highlight>
+  constructor(context) {
+    this.context = context;
+  }
+
+  <highlight class="fragment">run(builderConfig) {</highlight>
+    <highlight class="fragment">this.buildLegoSource(builderConfig.options.project);</highlight>
+
+    <highlight class="fragment">return CoreBuilder.NgPackagrBuilder.prototype.run.call(this, builderConfig);</highlight>
+  }
+
+  buildLegoSource(projectPath) {
+  }
+}
+
+exports.LegoBuilder = LegoBuilder;
+exports.default = LegoBuilder;
+        </code></pre>
+        </section>
+
+        <section data-title="projects/lego-site/src/bricksData.ts" class="slide-code" style="font-size: 0.7em;">
+            <pre class="language-javascript"><code>
+/* tslint:disable */
+import {
+ BrickImageComponent,
+ BrickTextComponent,
+} from 'lego-site/bricks';
+
+export const bricks = {
+  image: {
+    title: 'Картинка',
+    data: {"image":"/assets/homer.jpg"},
+    component: BrickImageComponent,
+  },
+  text: {
+    title: 'Текст',
+    data: {"text":"Это просто фантастика!!!"},
+    component: BrickTextComponent,
+  },
+};
+        </code></pre>
+        </section>
+
+        <section data-title="что получили?">
+            <ul>
+                <li class="fragment">Angular-пакет с основной библиотекой</li>
+                <li class="fragment">Angular-пакет с библиотекой блоков</li>
+                <li class="fragment">Часть кода генерится автоматически из данных</li>
+            </ul>
+        </section>
+
+        <section>
+            <h3>А дальше что?</h3>
+            <h4>Как это все проверять?</h4>
+        </section>
+
+        <section data-title="angular.json" class="slide-code" style="font-size: 0.7em;">
+            <pre class="language-javascript"><code>
+    <highlight>"lego-example"</highlight>: {
+      "root": "",
+      <highlight class="fragment">"sourceRoot": "src"</highlight>,
+      <highlight class="fragment">"projectType": "application"</highlight>,
+      "prefix": "app",
+      "schematics": {},
+      "architect": {
+        "build": {
+          <highlight class="fragment">"builder": "@angular-devkit/build-angular:browser"</highlight>,
+          "options": {
+          },
+          "configurations": {
+          }
+        },
+      }
+    }
+        </code></pre>
+        </section>
+
+        <section data-title="tsconfig.json" class="slide-code" style="font-size: 0.7em;">
+            <pre class="language-javascript"><code>
+{
+  "compilerOptions": {
+    ...,
+    "paths": {
+      <highlight class="fragment">"lego-common"</highlight>: [
+        <highlight class="fragment">"dist/lego-common"</highlight>
+      ],
+      <highlight class="fragment">"lego-common/*"</highlight>: [
+        "dist/lego-common/*"
+      ],
+      <highlight class="fragment">"lego-site"</highlight>: [
+        "dist/lego-site"
+      ],
+      <highlight class="fragment">"lego-site/*"</highlight>: [
+        "dist/lego-site/*"
+      ]
+    }
+  }
+}
+        </code></pre>
+        </section>
+
+        <section data-title="src/app/app.module.ts" class="slide-code" style="font-size: 0.7em;">
+            <pre class="language-javascript"><code>
+import {BrowserModule} from '@angular/platform-browser';
+import {NgModule} from '@angular/core';
+<highlight class="fragment">import {LegoSiteModule} from 'lego-site';</highlight>
+
+import {AppComponent} from './app.component';
+
+@NgModule({
+  declarations: [
+    AppComponent
+  ],
+  imports: [
+    BrowserModule,
+    <highlight class="fragment">LegoSiteModule,</highlight>
+  ],
+  providers: [],
+})
+export class AppModule {
+}
+        </code></pre>
+        </section>
+
+        <section data-title="angular.json" class="slide-code" style="font-size: 0.7em;">
+            <pre class="language-javascript"><code>
+    <highlight>"lego-example"</highlight>: {
+      "root": "",
+      <highlight class="fragment">"sourceRoot": "src"</highlight>,
+      <highlight class="fragment">"projectType": "application"</highlight>,
+      "prefix": "app",
+      "schematics": {},
+      "architect": {
+        "build": {
+          <highlight class="fragment">"builder": "@angular-devkit/build-angular:browser"</highlight>,
+          "options": {
+          },
+          "configurations": {
+          }
+        },
+      }
+    }
+        </code></pre>
+        </section>
+
+        <section data-background-image="assets/lego_example.gif"
+                 class="slide-code"
+                 data-title="<a href='https://github.com/karpoff/lego-example'>https://github.com/karpoff/lego-example</a>"
+                 data-background-size="contain">
+            <div></div>
+        </section>
+
+        <section data-background-image="assets/app_example.gif"
+                 data-background-size="contain">
+            <div></div>
+        </section>
+
+        <section>
+            <h1>Итого</h1>
+        </section>
+
+        <section data-title="что получили">
+            <ul>
+                <li class="fragment">Полноценную библиотеку конструктора</li>
+                <li class="fragment">Библиотеки с блоками и редакторами для проектов</li>
+                <li class="fragment">Приложение для проверки, повторяющее работу основного</li>
+                <li class="fragment">Набор вариаций блоков</li>
+            </ul>
+        </section>
+
+        <section data-title="что хорошего">
+            <ul class="icon-list">
+                <li class="fragment thinking">Отделили зерна от плевел</li>
+                <li class="fragment cool">Гибкое использование конструктора</li>
+                <li class="fragment hugging">Полноценная среда разработки для библиотеки</li>
+                <li class="fragment tongue">Нашли кучу баг пока переходили</li>
+                <li class="fragment cowboy">Нет зависимостей от третьих систем</li>
+                <li class="fragment happy">Тестировщики и дизайнеры рады</li>
+            </ul>
+        </section>
+
+        <section data-title="что плохого">
+            <ul class="icon-list">
+                <li class="fragment thinking">Дополнительный шаг в процессе разработки</li>
+                <li class="fragment clock">Долгая сборка<sup>*</sup></li>
+            </ul>
+        </section>
+
+        <section data-title="что дальше?">
+            <h4 class="fragment">Основная проблема - возможный регресс при внесении изменений</h4>
+            <ul>
+                <li class="fragment">Интеграционные тесты для всех вариантов блоков</li>
+                <li class="fragment">screenshot-тестирование всех вариантов блоков</li>
+                <li class="fragment">сравнительное screenshot-тестирование для блоков редактора и опубликованных</li>
+            </ul>
+        </section>
+
+        <section>
+            <h1>❓</h1>
+            <p class="smaller">Антон Карпов, Tinkoff.ru<br>
+                <b>История одного конструктора</b></p>
+
+            <div style="font-size: 0.6em;">
+                <br/>
+                <p class="smaller"><a href="https://github.com/karpoff/lego-example">https://github.com/karpoff/lego-example</a></p>
+                <p class="smaller"><a href="https://github.com/karpoff/lego-presentation">https://github.com/karpoff/lego-presentation</a></p>
+            </div>
+        </section>
+    </div>
+</div>
+
+<script src="lib/js/head.min.js"></script>
+<script src="lib/js/reveal.js"></script>
+
+<script>
+    // More info about config & dependencies:
+    // - https://github.com/hakimel/reveal.js#configuration
+    // - https://github.com/hakimel/reveal.js#dependencies
+    Reveal.initialize({
+        // Controls
+        controls: false,
+        controlsTutorial: false,
+
+        // Numbers
+        slideNumber: 'c/t',
+
+        // Transitions
+        transitionSpeed: 'fast',
+        transition: 'none',
+
+        // Toggle notes
+        showNotes: document.location.search.includes('showNotes'),
+
+        // URL
+        history: true,
+        fragmentInURL: true,
+
+        // Printing
+        pdfSeparateFragments: false,
+
+        // For plugins
+        postMessage: true,
+        dependencies: [
+            {
+                src: 'node_modules/mermaid/dist/mermaid.min.js',
+                async: true,
+            },
+            {
+                src: 'node_modules/emojione/lib/js/emojione.js',
+                async: true,
+            },
+            {
+                src: 'lib/plugins/emojione/index.js',
+                async: true,
+            },
+            {
+                src: 'lib/plugins/markdown/marked.js',
+                condition: () => !!document.querySelector('[data-markdown]') || !!document.querySelector('[data-note-markdown]'),
+            },
+            {
+                src: 'lib/plugins/markdown/markdown.js',
+                condition: () => !!document.querySelector('[data-markdown]'),
+            },
+            {
+                src: 'lib/plugins/notes-markdown/index.js',
+                condition: () => !!document.querySelector('[data-note-markdown]'),
+            },
+            {
+                src: 'lib/plugins/mermaid/index.js',
+                async: true,
+            },
+            {
+                src: 'lib/plugins/tinkoff-header/index.js',
+            },
+            {
+                src: 'lib/plugins/notes/notes.js',
+                async: true,
+            },
+            {
+                src: 'lib/plugins/dinasize/index.js',
+                condition: () => !window.location.search.match(/print-pdf/gi),
+                async: true,
+            },
+            {
+                src: 'lib/plugins/prism/prism.js',
+                async: true,
+                callback: () => {
+                    Array.from(document.querySelectorAll('pre code')).forEach(block => {
+                        block.addEventListener('blur', () => {
+                            Prism.highlightElement(block);
+                        });
+                    });
+                },
+            },
+        ],
+    });
+</script>
+</body>
+
+</html>

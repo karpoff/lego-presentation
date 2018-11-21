@@ -1,0 +1,67 @@
+/* PF Highway Sans Pro */
+@font-face {
+    font-family: 'pfhighway';
+    src:
+        url('PFHighwaySansPro-ExtraThin.eot') format('eot'),
+        url('PFHighwaySansPro-ExtraThin.woff2') format('woff2'),
+        url('PFHighwaySansPro-ExtraThin.woff') format('woff'),
+        url('PFHighwaySansPro-ExtraThin.ttf')  format('ttf');
+    font-weight: 100;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'pfhighway';
+    src:
+        url('PFHighwaySansPro-Thin.eot') format('eot'),
+        url('PFHighwaySansPro-Thin.woff2') format('woff2'),
+        url('PFHighwaySansPro-Thin.woff') format('woff'),
+        url('PFHighwaySansPro-Thin.ttf')  format('ttf');
+    font-weight: 200;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'pfhighway';
+    src:
+        url('PFHighwaySansPro-Light.eot') format('eot'),
+        url('PFHighwaySansPro-Light.woff2') format('woff2'),
+        url('PFHighwaySansPro-Light.woff') format('woff'),
+        url('PFHighwaySansPro-Light.ttf')  format('ttf');
+    font-weight: 300;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'pfhighway';
+    src:
+        url('PFHighwaySansPro-Regular.eot') format('eot'),
+        url('PFHighwaySansPro-Regular.woff2') format('woff2'),
+        url('PFHighwaySansPro-Regular.woff') format('woff'),
+        url('PFHighwaySansPro-Regular.ttf')  format('ttf');
+    font-weight: 400;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'pfhighway';
+    src:
+        url('PFHighwaySansPro-Medium.eot') format('eot'),
+        url('PFHighwaySansPro-Medium.woff2') format('woff2'),
+        url('PFHighwaySansPro-Medium.woff') format('woff'),
+        url('PFHighwaySansPro-Medium.ttf')  format('ttf');
+    font-weight: 600;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'pfhighway';
+    src:
+        url('PFHighwaySansPro-Bold.eot') format('eot'),
+        url('PFHighwaySansPro-Bold.woff2') format('woff2'),
+        url('PFHighwaySansPro-Bold.woff') format('woff'),
+        url('PFHighwaySansPro-Bold.ttf')  format('ttf');
+    font-weight: 800;
+    font-weight: bold;
+    font-style: normal;
+}
