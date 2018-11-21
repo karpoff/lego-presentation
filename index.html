@@ -176,7 +176,7 @@
         </code></pre>
         </section>
 
-        <section data-title="projects/lego-landings/package.json" class="slide-code">
+        <section data-title="projects/lego-site/package.json" class="slide-code">
             <pre class="language-javascript"><code>
             {
   "name": "@lego/site",
@@ -193,7 +193,7 @@
         </code></pre>
         </section>
 
-        <section data-title="projects/lego-landings/ng-package.json" class="slide-code">
+        <section data-title="projects/lego-site/ng-package.json" class="slide-code">
             <pre class="language-javascript"><code>
 {
   "$schema": "../../node_modules/ng-packagr/ng-package.schema.json",
@@ -297,9 +297,8 @@ export class LegoSiteModule {
         "build": {
           <highlight class="fragment">"builder": "@angular-devkit/build-ng-packagr:build",</highlight>
           "options": {
-            "tsConfig": "projects/lego-landings/tsconfig.json",
-            "project": "projects/lego-landings/ng-package.json",
-            "source": "projects/lego-landings"
+            "tsConfig": "projects/lego-site/tsconfig.json",
+            "project": "projects/lego-site/ng-package.json"
           },
         }
       }
@@ -318,9 +317,8 @@ export class LegoSiteModule {
         "build": {
           <highlight>"builder": "./builders:lego",</highlight>
           "options": {
-            "tsConfig": "projects/lego-landings/tsconfig.json",
-            "project": "projects/lego-landings/ng-package.json",
-            "source": "projects/lego-landings"
+            "tsConfig": "projects/lego-site/tsconfig.json",
+            "project": "projects/lego-site/ng-package.json"
           },
         }
       }
